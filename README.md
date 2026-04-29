@@ -18,6 +18,40 @@ GPU Running: ```srun --partition=standard-g --account=project_465002703 --<other
 ## Python Environment
 Directly installing Anaconda is inapplicable on LUMI. Instead, I use singularity.
 
+### (In Test) Using Image(.img) Files to Build Singularity
+To build a writable singularity container, using sandbox costs too many file counts. Using .img can save this.
+
+0. Write this in your user .bashrc file:
+```
+export SINGULARITYENV_PYTHONPATH="/my_pkgs:$PYTHONPATH"
+```
+1. Start by pulling an existing singularity from [docker hub](https://hub.docker.com/r/rocm/pytorch):
+```
+# Choose your own version
+singularity pull docker://rocm/pytorch:rocm7.2_ubuntu24.04_py3.12_pytorch_release_2.7.1
+```
+2. Generate an image overlay on top of this file:
+```
+# 5G-10G should be enough, since torch is already installed
+singularity overlay create --size 10240 env1.img
+```
+3. Open the singularity with overlay (Do it in GPU node for convenience, but not always necessary):
+```
+srun --gpus=1 --partition=standard-g --account=project_465002703 --pty \
+  singularity shell --overlay env1.img \
+  pytorch_rocm7.2.1_ubuntu22.04_py3.10_pytorch_release_2.7.1.sif
+```
+4. Create a new directory for new package installations: ```mkdir /my_pkgs```. This directory must align with step 0.
+5. Install packages into this new directory:
+```
+pip install pkg1 --target /my_pkgs
+pip install -r requirements.txt --target /my_pkgs
+python setup.py install --prefix=/my_pkgs
+
+export PYTHONUSERBASE=/my_pkgs && pip install --user -e .
+```
+6. Quit the singularity when finished.
+
 ### Singularity
 - Start by pulling an existing singularity from [docker hub](https://hub.docker.com/r/rocm/pytorch):
 ```
