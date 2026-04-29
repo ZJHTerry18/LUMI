@@ -50,9 +50,14 @@ srun --gpus=1 --partition=standard-g --account=project_465002703 singularity exe
   <sandbox_path> python script.py
 ```
 
-
 - The storage amount of a singularity (take ```pytorch_rocm6.4.4_ubuntu22.04_py3.10_pytorch_release_2.4.1.sif``` as example):
 ```
 .sif: 20G
 sandbox folder: 55G, 285k files # !!files might be too much
 ```
+
+## Environment Installation Logs
+### Depth-Anything-3
+git repo: [depth-anything-3](https://github.com/ByteDance-Seed/depth-anything-3)
+
+1. Pull singularity: ```singularity pull docker://rocm/pytorch:rocm7.2.1_ubuntu22.04_py3.10_pytorch_release_2.7.1```
